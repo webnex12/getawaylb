@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Find Your Chalet</title>
+  <meta name="description" content="Chalet rental search page – find and book your perfect stay by location, dates, price, and guests." />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0b1220;
+      --card: #101828;
+      --muted: #9aa4b2;
+      --text: #e6edf3;
+      --brand: #68c1ff;
+      --brand-2: #7ae3c3;
+      --stroke: #1f2a3b;
+      --warning: #ffb86b;
+      --success: #16bd6a;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background: radial-gradient(1200px 600px at 80% -10%, rgba(104,193,255,.12), transparent 50%),
+                              radial-gradient(900px 500px at 10% 0%, rgba(122,227,195,.12), transparent 45%),
+                              var(--bg);
+      color:var(--text); font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+    a{color:inherit; text-decoration:none}
+    .container{max-width:1200px; margin-inline:auto; padding:24px}
+
+    /* Navbar */
+    .nav{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 0}
+    .logo{display:flex; align-items:center; gap:10px; font-weight:700}
+    .logo-badge{width:32px; height:32px; border-radius:10px; background:linear-gradient(135deg, var(--brand), var(--brand-2)); display:grid; place-items:center; color:#0a0f1c; font-weight:800}
+    .nav-actions{display:flex; gap:10px}
+    .btn{appearance:none; border:1px solid var(--stroke); background:#0e1626; color:var(--text); padding:10px 14px; border-radius:12px; cursor:pointer; transition:.2s ease; font-weight:600}
+    .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
+    .btn.primary{background:linear-gradient(135deg, var(--brand), var(--brand-2)); color:#08111d; border:none}
+
+    /* Hero */
+    .hero{display:grid; gap:24px; padding:16px 0 8px}
+    .hero h1{font-size: clamp(28px, 3.5vw, 44px); line-height:1.1; margin:0}
+    .hero p{color:var(--muted); margin:0}
+
+    /* Search card */
+    .search-card{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)); border:1px solid var(--stroke); border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:14px; display:grid; gap:12px}
+    .search-row{display:grid; grid-template-columns:1.2fr repeat(3, 1fr) auto; gap:10px}
+    .field{display:flex; flex-direction:column; gap:6px}
+    .label{font-size:12px; color:var(--muted)}
+    .input, .select{width:100%; padding:12px 12px; border-radius:12px; border:1px solid var(--stroke); background:#0e1626; color:var(--text)}
+    .input::placeholder{color:#5e6b7d}
+
+    /* Filter bar */
+    .filters{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+    .chip{border:1px solid var(--stroke); padding:8px 12px; border-radius:999px; background:#0e1626; color:var(--text); cursor:pointer; transition:.2s}
+    .chip[aria-pressed="true"]{border-color:var(--brand); box-shadow:0 0 0 2px rgba(104,193,255,.25) inset}
+    .sort{margin-left:auto; display:flex; align-items:center; gap:8px}
+
+    /* Results */
+    .results-head{display:flex; align-items:center; justify-content:space-between; margin-top:10px}
+    .grid{display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:16px; margin-top:14px}
+    .card{background:#0f1726; border:1px solid var(--stroke); border-radius:18px; overflow:hidden; transition:.2s ease; display:flex; flex-direction:column}
+    .card:hover{transform:translateY(-2px); box-shadow:var(--shadow)}
+    .card img{width:100%; height:180px; object-fit:cover}
+    .card-body{padding:14px; display:grid; gap:6px}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:8px}
+    .muted{color:var(--muted)}
+    .rating{display:inline-flex; align-items:center; gap:6px}
+    .amenities{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px}
+    .amenities .tag{font-size:12px; border:1px solid var(--stroke); padding:4px 8px; border-radius:999px; color:var(--muted)}
+
+    .empty{padding:28px; text-align:center; border:1px dashed var(--stroke); border-radius:16px; color:var(--muted)}
+    .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight:700;
+}
+
+.logo-image {
+    height: 40px;
+    width: auto;
+    border-radius: 6px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+    /* Footer */
+    footer{margin-top:40px; padding:32px 0; color:var(--muted); border-top:1px solid var(--stroke)}
+
+    /* Responsive */
+    @media (max-width: 1024px){
+      .grid{grid-template-columns: repeat(2, minmax(0, 1fr));}
+      .search-row{grid-template-columns:1.2fr 1fr 1fr 1fr auto}
+    }
+    @media (max-width: 720px){
+      .nav{flex-wrap:wrap}
+      .search-row{grid-template-columns:1fr;}
+      .grid{grid-template-columns: 1fr;}
+      .sort{margin-left:0}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Navbar -->
+    <nav class="nav" aria-label="Primary">
+      <a href="/" class="header-logo">
+    <img src="image/get.jpeg" alt="Getaway LB Logo" class="logo-image">
+        <span>Getaway<span style="color:var(--brand)">Lb</span></span>
+      </a>
+      <div class="nav-actions">
+        <a href="https://www.instagram.com/getaway.lb12?igsh=MXh6bm9oYXNiZHV3bw==" target="_blank">
+  <i class="fab fa-instagram" style="font-size:40px; color:#E1306C;"></i>
+</a>
+        <a href="https://wa.me/96181833120" target="_blank">
+  <i class="fab fa-whatsapp" style="font-size:40px; color:#25D366;"></i>
+</a>
+<a href="https://www.tiktok.com/@getaway.lb?_t=ZS-8uVdblTDVDN&_r=1" target="_blank">
+  <i class="fab fa-tiktok" style="font-size:40px;"></i>
+</a>
+<a href="https://www.facebook.com/share/1CMD7pswLs/" target="_blank">
+  <i class="fab fa-facebook" style="font-size:40px; color:Facebook Blue;"></i>
+</a>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+      <h1>Find your perfect getaway</h1>
+      <p>Search by location, dates, price and amenities.</p>
+
+      <!-- Search Card -->
+      <form id="searchForm" class="search-card" aria-label="Search chalets">
+        <div class="search-row">
+          <div class="field">
+            <label class="label" for="location">Location</label>
+            <input id="location" class="input" type="text" placeholder="Try: Mzaar, Faraya, Batroun, Jbeil…" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label class="label" for="checkin">Check-in</label>
+            <input id="checkin" class="input" type="date" />
+          </div>
+          <div class="field">
+            <label class="label" for="checkout">Check-out</label>
+            <input id="checkout" class="input" type="date" />
+          </div>
+          <div class="field">
+            <label class="label" for="guests">Guests</label>
+            <select id="guests" class="select">
+              <option value="">Any</option>
+              <option>2</option>
+              <option>4</option>
+              <option>6</option>
+              <option>8</option>
+              <option>10+</option>
+            </select>
+          </div>
+          <div class="field" style="align-self:end">
+            <button class="btn primary" type="submit" aria-label="Search chalets">Search</button>
+          </div>
+        </div>
+        <div class="filters" style="margin-top:6px">
+          <span class="label" aria-hidden="true">Quick filters:</span>
+          <button type="button" class="chip" data-amenity="hot tub" aria-pressed="false">Hot tub</button>
+          <button type="button" class="chip" data-amenity="private pool" aria-pressed="false">Private pool</button>
+          <button type="button" class="chip" data-amenity="jaccuzi" aria-pressed="false">Jaccuzi</button>
+          <button type="button" class="chip" data-amenity="ski" aria-pressed="false">Ski-in/out</button>
+          <button type="button" class="chip" data-amenity="beach access" aria-pressed="false">Beach access</button>
+          <button type="button" class="chip" data-amenity="day use" aria-pressed="false">Day use</button>
+          <button type="button" class="chip" data-amenity="yachting" aria-pressed="false">Yachting</button>
+          <div class="sort">
+            <label class="label" for="sort">Sort by</label>
+            <select id="sort" class="select">
+              <option value="relevance">Relevance</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="rating-desc">Rating: High to Low</option>
+            </select>
+          </div>
+        </div>
+        <div class="filters" style="margin-top:0">
+          <label class="label" for="priceRange">Max price per night</label>
+          <input id="priceRange" class="input" type="range" min="50" max="600" step="10" value="600" aria-label="Max price" />
+          <span id="priceValue" class="muted">Up to $600</span>
+        </div>
+      </form>
+    </section>
+
+    <!-- Results header -->
+    <div class="results-head" id="explore">
+      <div><strong id="resultCount">0</strong> stays • <span class="muted" id="activeFilters">Showing all locations</span></div>
+      <div class="muted">Tip: type a city or mountain name</div>
+    </div>
+
+    <!-- Cards -->
+    <section id="results" class="grid" aria-live="polite"></section>
+
+    <div id="emptyState" class="empty" hidden>
+      No chalets match your filters. Try removing some filters or widening your search.
+    </div>
+
+    <footer>
+      <div class="row">
+        <div>© <span id="year"></span> Getaway.lb</div>
+        <div>All rights reserved.</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // --- Demo data (replace with your backend / API) ---
+    const CHALETS = [
+      { id:1, name:"Bennay private pool", location:"El Bennay, Aley", price:100, guests:6, rating:4.8, amenities:["private pool"], img:"image/bennay.jpeg" },
+      { id:2, name:"Hrajel guesthouse", location:"Hrajel, Faraya", price:130, guests:6, rating:4.5, amenities:["private pool","snow","ski"], img:"image/hrajel.jpeg" },
+      { id:3, name:"Kfarmatta chalet", location:"Kfarmatta, Aley", price:120, guests:8, rating:4.3, amenities:["private pool"], img:"image/jenfair.jpeg" },
+      { id:4, name:"Baisour escape", location:"Baisour, Aley", price:100, guests:8, rating:4.7, amenities:["private pool"], img:"image/jasmine.jpeg" },
+      { id:5, name:"Blue cave", location:"Adousiyeh, south lebanon", price:200, guests:2, rating:4.7, amenities:["private pool","jaccuzi"], img:"image/add.jpeg" },
+      { id:6, name:"Beirut rooftop", location:"Beirut, Dekwene", price:80, guests:2, rating:4.9, amenities:["private pool"], img:"image/beirut.jpeg" },
+      { id:7, name:"Bejjeh pool", location:"Bejjeh, jbeil", price:180, guests:4, rating:4.8, amenities:["private pool"], img:"image/bejjeh.jpeg" },
+      { id:8, name:"Mazboud private pool", location:"Mazboud,chouf", price:120, guests:7, rating:4.8, amenities:["private pool"], img:"image/warde.jpeg" },
+      { id:9, name:"Mazboud bungalow", location:"Mazboud,chouf", price:120, guests:10, rating:4.6, amenities:["private pool"], img:"image/starry.jpeg" },
+      { id:10, name:"Dmit bungalow", location:"Dmit,chouf", price:75, guests:8, rating:4.8, amenities:["private pool"], img:"image/dmit.jpeg" },
+      { id:11, name:"kfarmatta private pool", location:"Kfarmatta, Aley", price:160, guests:6, rating:4.7, amenities:["private pool"], img:"image/mulino.jpeg" },
+      { id:12, name:"Batroun cave", location:"smar jbeil, batroun", price:70, guests:2, rating:4.8, amenities:["private pool","hot tub"], img:"image/smar.jpeg" },
+      { id:13, name:"Kfarmatta rooftop", location:"Kfarmatta, Aley", price:110, guests:4, rating:4.8, amenities:["private pool"], img:"image/mul.jpeg" },
+      { id:14, name:"Debbieh dome", location:"Debbieh, chouf", price:70, guests:2, rating:4.5, amenities:["jaccuzi"], img:"image/dome.jpeg" },
+      { id:15, name:"Baisour bungalow", location:"Baisour, Aley", price:210, guests:8, rating:4.8, amenities:["private pool"], img:"image/horizon.jpeg" },
+      { id:16, name:"Batroun cabin", location:"Mrah zayyat, Batroun", price:80, guests:2, rating:4.5, amenities:["private pool"], img:"image/mrah.jpeg" },
+      { id:17, name:"Panoramic bungalow", location:"Edde, Batroun", price:110, guests:2, rating:4.8, amenities:["private pool","jaccuzi"], img:"image/seacret.jpeg" },
+      { id:18, name:"Heart chalet", location:"Dhour choueir", price:135, guests:2, rating:4.7, amenities:["private pool","jaccuzi"], img:"image/tama.jpeg" },
+      { id:19, name:"Treehouse chalet", location:"Majdlayah, Aley", price:80, guests:4, rating:4.7, amenities:["private pool"], img:"image/walnut.jpeg" },
+      { id:20, name:"Tanourine lodge", location:"Tannourine", price:80, guests:2, rating:4.7, amenities:["private pool"], img:"image/neo.jpeg" },
+      { id:21, name:"Bejjeh villa", location:"Bejjeh, jbeil", price:350, guests:12, rating:4.9, amenities:["private pool"], img:"image/cross.jpeg" },
+      { id:22, name:"Baadaran villa", location:"Baadaran, chouf", price:180, guests:12, rating:4.8, amenities:["private pool"], img:"image/baadaran.jpeg" },
+      { id:23, name:"chabtine guesthouse", location:"Chabtine, batroun", price:80, guests:2, rating:4.8, amenities:["private pool"], img:"image/rameaux.jpeg" },
+      { id:24, name:"Mazboud bungalows", location:"Mazboud,chouf", price:80, guests:2, rating:4.7, amenities:["private pool"], img:"image/maz.jpeg" },
+      { id:25, name:"Mastita chalet", location:"Mastita, jbeil", price:100, guests:4, rating:4.9, amenities:["private pool"], img:"image/muse.jpeg" },
+      { id:26, name:"Green chalet", location:"Rmeileh", price:100, guests:8, rating:4.9, amenities:["private pool","jaccuzi"], img:"image/green.jpeg" },
+      { id:27, name:"Baisour lodge", location:"Baisour, Aley", price:120, guests:10, rating:4.7, amenities:["private pool"], img:"image/palm2.jpeg" },
+       { id:28, name:"Place de la paix", location:"Beit eddine, chouf", price:100, guests:4, rating:4.8, amenities:["private pool","hot tub"], img:"image/ange.jpeg" },
+      { id:29, name:"Stone guesthouse", location:"Chabtine, batroun", price:120, guests:2, rating:4.8, amenities:["private pool","jaccuzi"], img:"image/ath.jpeg" },
+      { id:30, name:"Hill chalet", location:"Ghaboun, Aley", price:80, guests:10, rating:4.7, amenities:["private pool"], img:"image/eagle.jpeg" },
+      { id:31, name:"wooden chalet", location:"Kfarrouman, nabatieh", price:100, guests:4, rating:4.9, amenities:["private pool"], img:"image/ciel.jpeg" },
+      { id:32, name:"Old house", location:"Douk, batroun", price:230, guests:10, rating:4.5, amenities:["private pool"], img:"image/douk.jpeg" },
+      { id:33, name:"Faraya boutique hotel", location:"Faraya", price:150, guests:2, rating:4.7, amenities:["jaccuzi"], img:"image/faraya.jpeg" },
+      { id:34, name:"kfardebian chalet", location:"Kfardebian", price:150, guests:6, rating:4.7, amenities:["snow","ski"], img:"image/kfr.jpg" },
+      { id:35, name:"Faqra bungalow", location:"Faqra", price:150, guests:4, rating:4.7, amenities:["snow","ski"], img:"image/fq.jpg" },
+      { id:36, name:"Ehden bungalow", location:"Ehden", price:180, guests:2, rating:4.7, amenities:["jaccuzi","snow","ski"], img:"image/eh.jpg" },
+      { id:37, name:"Tabarja boutique hotel", location:"Tabarja", price:100, guests:2, rating:4.7, amenities:["jaccuzi"], img:"image/op.jpg" },
+      { id:38, name:"Douma bungalows", location:"Douma, batroun", price:80, guests:2, rating:4.7, amenities:["jaccuzi"], img:"image/pn.jpg" },
+      { id:39, name:"red house", location:"Kfardebian", price:150, guests:5, rating:4.7, amenities:["snow","ski"], img:"image/rd.jpg" },
+      { id:40, name:"joie place", location:"Beit eddine, chouf", price:80, guests:2, rating:4.7, amenities:["jaccuzi","private pool"], img:"image/j.jpg" },
+      { id:41, name:"Cedars chalet", location:"Arez, Bsharreh", price:100, guests:4, rating:4.7, amenities:["snow","ski"], img:"image/c.jpg" },
+      { id:42, name:"Hadshit lodge", location:"Hadshit", price:120, guests:2, rating:4.7, amenities:["snow","ski"], img:"image/h.jpeg" },
+      { id:43, name:"Cedars chalet 2", location:"Arez, Bsharreh", price:200, guests:8, rating:4.7, amenities:["snow","ski"], img:"image/s.jpeg" },
+      { id:44, name:"La vie guesthouse", location:"Bouar", price:110, guests:2, rating:4.8, amenities:["beach access"], img:"image/bo.jpeg" },
+      { id:45, name:"Sea guesthouse", location:"Kfarabida", price:125, guests:2, rating:4.7, amenities:["beach access","jaccuzi"], img:"image/cy.jpeg" },
+      { id:46, name:"Mradiyeh guesthouse", location:"Mradiyeh", price:150, guests:8, rating:4.8, amenities:["private pool"], img:"image/mra.jpeg" },
+      { id:47, name:"Feitroun dome", location:"Feitroun", price:80, guests:2, rating:4.7, amenities:["snow","ski"], img:"image/fy1.jpeg" },
+      { id:48, name:"Kfardebian container", location:"Kfardebian", price:150, guests:5, rating:4.7, amenities:["snow","ski"], img:"image/ct.jpeg" },
+      { id:49, name:"Swing chalet", location:"Dhour choueir", price:150, guests:4, rating:4.8, amenities:["jaccuzi","hot tub"], img:"image/tm.jpeg" },
+      { id:50, name:"Iris chalet", location:"Mastita, jbeil", price:100, guests:2, rating:4.7, amenities:["jaccuzi"], img:"image/ir.jpeg" },
+      { id:51, name:"Parea chalet", location:"Mastita, jbeil", price:250, guests:2, rating:4.8, amenities:["private pool","hot tub"], img:"image/pa.jpeg" },
+      { id:52, name:"the bungalow", location:"Abbadiyeh", price:80, guests:2, rating:4.8, amenities:["private pool"], img:"image/bg.jpeg" },
+      { id:53, name:"White house", location:"Bisri", price:250, guests:8, rating:4.7, amenities:["private pool"], img:"image/bs.jpeg" },
+      { id:54, name:"Safi chalet", location:"Jabal safi", price:80, guests:4, rating:4.8, amenities:["jaccuzi"], img:"image/sf.jpeg" },
+      { id:55, name:"Chabtine chalet", location:"Chabtine, batroun", price:150, guests:2, rating:4.7, amenities:["jaccuzi","private pool"], img:"image/et.jpeg" },
+      { id:56, name:"panorama chalet", location:"Chekka", price:250, guests:2, rating:4.8, amenities:["private pool","hot tub"], img:"image/pn.jpeg" },
+      { id:57, name:"Laklouk lodge", location:"Laklouk", price:250, guests:4, rating:4.8, amenities:["jaccuzi","snow","ski"], img:"image/ca.jpeg" },
+      { id:58, name:"M village", location:"Mayrouba", price:120, guests:2, rating:4.7, amenities:["jaccuzi"], img:"image/my.jpeg" },
+      { id:59, name:"Mzaar chalet", location:"Kfardebian", price:160, guests:5, rating:4.8, amenities:["snow","ski"], img:"image/ch6.jpeg" },
+      { id:60, name:"Faraya escape", location:"Faraya", price:130, guests:6, rating:4.8, amenities:["snow","ski"], img:"image/sm.jpeg" },
+      { id:61, name:"Mzaar peaks", location:"Kfardebian", price:200, guests:5, rating:4.7, amenities:["snow","ski"], img:"image/my.jpeg" },
+      { id:62, name:"Apple chalet", location:"Kfardebian", price:150, guests:4, rating:4.8, amenities:["snow","ski"], img:"image/ap.jpeg" },
+      { id:63, name:"Zaarour bungalows", location:"Zaarour", price:200, guests:5, rating:4.7, amenities:["snow","ski"], img:"image/zr.jpeg" },
+      { id:64, name:"Sunset chalet", location:"Zaarour", price:250, guests:4, rating:4.8, amenities:["jaccuzi","snow","ski","private pool"], img:"image/sn.jpeg" },
+      { id:65, name:"Flake guesthouse", location:"Arez, Bcharreh", price:150, guests:6, rating:4.7, amenities:["snow","ski"], img:"image/fl.jpeg" },
+      { id:66, name:"Orlina chalet", location:"Nabatieh", price:80, guests:5, rating:4.8, amenities:["jaccuzi","private pool"], img:"image/wt.jpeg" },
+      { id:67, name:"Root guesthouse", location:"Jadra", price:270, guests:10, rating:4.7, amenities:["private pool"], img:"image/jd.jpeg" },
+      { id:68, name:"The view villa", location:"Maamariyeh", price:180, guests:8, rating:4.8, amenities:["private pool"], img:"image/sof.jpeg" },
+      { id:69, name:"Gemini house 1", location:"Kfarmatta", price:100, guests:6, rating:4.8, amenities:["private pool"], img:"image/gm.jpeg" },
+      { id:70, name:"The cabin", location:"Ain dara", price:130, guests:6, rating:4.7, amenities:["private pool","snow","ski"], img:"image/che.jpeg" },
+      { id:71, name:"Ulivo chalet", location:"Aley", price:80, guests:5, rating:4.8, amenities:["private pool"], img:"image/ul.jpeg" },
+      { id:72, name:"Anan sky", location:"Anan", price:100, guests:6, rating:4.7, amenities:["private pool"], img:"image/ms.jpeg" },
+      { id:73, name:"The view bungalow", location:"Maamariyeh", price:90, guests:4, rating:4.8, amenities:["private pool"], img:"image/maa.jpeg" },
+      { id:74, name:"The mini home", location:"Kfarrouman, nabatieh", price:100, guests:2, rating:4.8, amenities:["private pool"], img:"image/mi.jpeg" },
+      { id:75, name:"Bsous rooftop", location:"Bsous", price:120, guests:4, rating:4.8, amenities:["private pool"], img:"image/bso.jpeg" },
+      { id:76, name:"Island cave", location:"Addousiyeh", price:100, guests:2, rating:4.7, amenities:["private pool","jaccuzi"], img:"image/nr.jpeg" },
+      { id:77, name:"Bsous chalet", location:"Bsous", price:350, guests:12, rating:4.8, amenities:["private pool"], img:"image/ha.jpeg" },
+      { id:78, name:"Rock pool", location:"Jran, Batroun", price:250, guests:10, rating:4.7, amenities:["private pool","day use"], img:"image/rk.jpeg" },
+      { id:79, name:"Cool private pool", location:"Bouar", price:140, guests:20, rating:4.8, amenities:["private pool","day use"], img:"image/pc.jpeg" },
+      { id:80, name:"Aqua private pool", location:"Kfarmatta", price:150, guests:10, rating:4.7, amenities:["private pool","day use"], img:"image/kd.jpeg" },
+      { id:81, name:"Samqanieh private pool", location:"Samqanieh", price:150, guests:12, rating:4.8, amenities:["private pool","day use"], img:"image/sq.jpeg" },
+      { id:82, name:"Kfarmatta garden", location:"Kfarmatta", price:125, guests:8, rating:4.7, amenities:["private pool","day use"], img:"image/ml.jpeg" },
+      { id:83, name:"Jouar guesthouse", location:"Jouar el hoz", price:100, guests:2, rating:4.8, amenities:["jaccuzi"], img:"image/vk.jpeg" },
+      { id:84, name:"The wood villa", location:"Lehfed", price:150, guests:6, rating:4.7, amenities:["private pool","jaccuzi"], img:"image/el.jpeg" },
+      { id:85, name:"Mina yacht", location:"Tripoli", price:350, guests:12, rating:4.8, amenities:["yachting"], img:"image/yk.jpeg" }
+
+    ];
+
+    const el = {
+      results: document.getElementById('results'),
+      empty: document.getElementById('emptyState'),
+      count: document.getElementById('resultCount'),
+      filtersLabel: document.getElementById('activeFilters'),
+      price: document.getElementById('priceRange'),
+      priceValue: document.getElementById('priceValue'),
+      sort: document.getElementById('sort'),
+      year: document.getElementById('year'),
+    };
+
+    el.year.textContent = new Date().getFullYear();
+
+    const state = {
+      q: '',
+      guests: '',
+      amenities: new Set(),
+      maxPrice: +el.price.value,
+      sort: 'relevance',
+    };
+
+    // --- UI helpers ---
+    const amenityLabel = {
+      'hot-tub': 'Hot tub',
+      'fireplace': 'Fireplace',
+      'lake': 'Lake view',
+      'ski': 'Ski-in/out'
+    };
+
+    function setPriceLabel(){
+      el.priceValue.textContent = `Up to $${state.maxPrice}`;
+    }
+
+    function formatPrice(v){ return `$${v}/night`; }
+
+    function starIcon(){
+      return `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .587l3.668 7.568L24 9.75l-6 5.854L19.335 24 12 19.897 4.665 24 6 15.604 0 9.75l8.332-1.595z"/></svg>`
+    }
+
+    function tag(text){ return `<span class="tag">${text}</span>` }
+
+    function describeFilters(){
+      const parts = [];
+      if(state.q) parts.push(`in "${state.q}"`);
+      if(state.guests) parts.push(`${state.guests} guests`);
+      if(state.amenities.size) parts.push([...state.amenities].map(a=>amenityLabel[a]).join(', '));
+      parts.push(`≤ $${state.maxPrice}`);
+      return parts.length ? `Filters: ${parts.join(' • ')}` : 'Showing all locations';
+    }
+
+    function sortFn(a,b){
+      switch(state.sort){
+        case 'price-asc': return a.price - b.price;
+        case 'price-desc': return b.price - a.price;
+        case 'rating-desc': return b.rating - a.rating;
+        default: return 0; // relevance (no-op for demo)
+      }
+    }
+
+    function matches(chalet){
+      const q = state.q.trim().toLowerCase();
+      const qOk = !q || chalet.name.toLowerCase().includes(q) || chalet.location.toLowerCase().includes(q);
+      const gOk = !state.guests || (state.guests === '10+' ? chalet.guests >= 10 : chalet.guests >= +state.guests);
+      const pOk = chalet.price <= state.maxPrice;
+      const aOk = !state.amenities.size || [...state.amenities].every(a => chalet.amenities.includes(a));
+      return qOk && gOk && pOk && aOk;
+    }
+
+    function render(){
+      const list = CHALETS.filter(matches).sort(sortFn);
+el.results.innerHTML = list.map(c => `
+    <a href="gst.html?id=${c.id}" class="card" aria-label="${c.name}">
+<img src="${c.img}" alt="${c.name} in ${c.location}" loading="lazy" />
+<div class="card-body">
+<div class="row">
+<strong>${c.name}</strong>
+<span class="rating" title="Rating ${c.rating}">${starIcon()} ${c.rating.toFixed(1)}</span>
+</div>
+<div class="muted">${c.location}</div>
+<div class="row" style="margin-top:6px">
+<div>${formatPrice(c.price)}</div>
+<div class="muted">Sleeps ${c.guests}</div>
+</div>
+<div class="amenities">${c.amenities.map(a=>tag(amenityLabel[a]||a)).join('')}</div>
+</div>
+</a>
+`).join('');
+ el.count.textContent = list.length;
+  el.filtersLabel.textContent = describeFilters();
+  el.empty.hidden = list.length !== 0;
+}
+render();
+
+    // --- Event wiring ---
+    const form = document.getElementById('searchForm');
+    const inputQ = document.getElementById('location');
+    const inputGuests = document.getElementById('guests');
+
+    form.addEventListener('submit', (e)=>{ e.preventDefault(); render(); });
+
+    inputQ.addEventListener('input', debounce(()=>{ state.q = inputQ.value; render(); }, 200));
+    inputGuests.addEventListener('change', ()=>{ state.guests = inputGuests.value; render(); });
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const key = chip.dataset.amenity;
+        const pressed = chip.getAttribute('aria-pressed') === 'true';
+        chip.setAttribute('aria-pressed', String(!pressed));
+        if(pressed){ state.amenities.delete(key); } else { state.amenities.add(key); }
+        render();
+      });
+    });
+
+    el.price.addEventListener('input', () => { state.maxPrice = +el.price.value; setPriceLabel(); render(); });
+    el.sort.addEventListener('change', () => { state.sort = el.sort.value; render(); });
+
+    // Date guards (simple UX)
+    const inEl = document.getElementById('checkin');
+    const outEl = document.getElementById('checkout');
+    inEl.addEventListener('change', ()=>{ outEl.min = inEl.value; });
+    outEl.addEventListener('change', ()=>{ inEl.max = outEl.value; });
+
+    // Initial paint
+    setPriceLabel();
+    render();
+
+    // Simple debounce
+    function debounce(fn, t){ let id; return (...args)=>{ clearTimeout(id); id = setTimeout(()=>fn(...args), t); } }
+
+    // Demo CTA
+    document.getElementById('btnListYourPlace').addEventListener('click', ()=>{
+      alert('Demo only: Connect this button to your host onboarding flow.');
+    });
+  </script>
+</body>
+</html>
